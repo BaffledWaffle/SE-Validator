@@ -1,7 +1,6 @@
 package me.BaffledWaffle;
 
-import me.BaffledWaffle.validator.Validator;
-
+import java.io.IOException;
 import java.nio.file.NoSuchFileException;
 import java.util.HashMap;
 import java.util.Map;
@@ -62,6 +61,8 @@ public class App  {
             printHelp();
         } catch ( NoSuchFileException e ) {
             System.out.println( e.getMessage() );
+        } catch ( IOException e) {
+            System.out.println( "IOException: " + e.getMessage() );
         }
     }
 

@@ -1,5 +1,9 @@
-package me.BaffledWaffle.validator;
+package me.BaffledWaffle;
 
+import me.BaffledWaffle.report.FileNode;
+import me.BaffledWaffle.report.FileTreeBuilder;
+
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
@@ -18,7 +22,7 @@ public class Validator {
      * @param cssValidator CSS validator .jar path
      * @param reportFile Report file path (report.html by default)
      */
-    public static void validateAndGenerateReport( String mode, String dir,  String vnuValidator, String cssValidator, String reportFile ) throws NoSuchFileException {
+    public static void validateAndGenerateReport( String mode, String dir,  String vnuValidator, String cssValidator, String reportFile ) throws IOException {
 
         // -- Paths --
         Path dirPath = getAbsolutePathIfExists( dir );
