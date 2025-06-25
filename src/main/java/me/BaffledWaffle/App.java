@@ -6,10 +6,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Hello world!
- *
+ * Application main class.
  */
 public class App  {
+
+    /**
+     * Application's main method. Gets and checks flags
+     * @param args console arguments
+     */
     public static void main( String[] args ) {
 
         try {
@@ -48,7 +52,7 @@ public class App  {
                 throw new IllegalArgumentException( "Kohustuslik arguments on määramata!" );
 
 
-            Validator.validate( mode, dirPath, vnuPath, cssPath, reportPath );
+            Validator.validateAndGenerateReport( mode, dirPath, vnuPath, cssPath, reportPath );
 
         } catch ( IllegalArgumentException e ) {
             System.out.println( e.getMessage() );
@@ -56,6 +60,9 @@ public class App  {
         }
     }
 
+    /**
+     * The method prints usage info
+     */
     private static void printHelp() {
         System.out.println("Kasutamine: java -jar SE-Validator.jar [-o | -s] -d <projekti(de) kaust> -vnu <vnu.jar> -css <css-validator.jar> [-out <report.html>]");
         System.out.println("    [-o | -s]                Valideerimise viis");
