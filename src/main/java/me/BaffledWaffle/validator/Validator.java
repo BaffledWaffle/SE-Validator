@@ -26,6 +26,8 @@ public class Validator {
             reportFile = "report.html";
         Path reportFilePath = getAbsolutePath( reportFile );
 
+        System.out.println( dirPath );
+
     }
 
     /**
@@ -35,7 +37,7 @@ public class Validator {
     private static Path getAbsolutePath( String pathStr ) {
         Path path = Paths.get( pathStr );
         if( !path.isAbsolute() )
-            return path.toAbsolutePath();
+            return path.toAbsolutePath().normalize();
         return path;
     }
 

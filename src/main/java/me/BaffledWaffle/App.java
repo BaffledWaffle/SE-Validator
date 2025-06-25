@@ -37,6 +37,8 @@ public class App  {
                     } else {
                         throw new IllegalArgumentException( "Lipp " + arg + " vajab väärtust!" );
                     }
+                } else {
+                    throw new IllegalArgumentException( "Tundmatu argument: " + arg );
                 }
             }
 
@@ -66,8 +68,8 @@ public class App  {
     private static void printHelp() {
         System.out.println("Kasutamine: java -jar SE-Validator.jar [-o | -s] -d <projekti(de) kaust> -vnu <vnu.jar> -css <css-validator.jar> [-out <report.html>]");
         System.out.println("    [-o | -s]                Valideerimise viis");
-        System.out.println("                                -o - üks projekt");
-        System.out.println("                                -s - mitu projekti korraga");
+        System.out.println("                                -o - üks projekt (projekti kaust)");
+        System.out.println("                                -s - mitu projekti korraga (kaust projektidega)");
         System.out.println("    -d <kaust>               Kaust projekti(de)ga");
         System.out.println("    -vnu <failinimi.jar>     Nu validaatrori failinimi");
         System.out.println("    -css <failinimi.jar>     CSS validaatori failinimi");
