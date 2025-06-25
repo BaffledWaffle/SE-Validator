@@ -28,9 +28,12 @@ public class Validator {
             reportFile = "report.html";
         Path reportFilePath = getAbsolutePath( reportFile );
 
-        System.out.println( dirPath );
-
     }
+
+    /**
+     * The method finds file/dir absolute path. throws NoSuchFileException if file or directory doesn't exist
+     * @return absolute path
+     */
     private static Path getAbsolutePathIfExists( String pathStr ) throws NoSuchFileException {
         Path path = getAbsolutePath( pathStr );
 
