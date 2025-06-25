@@ -2,6 +2,7 @@ package me.BaffledWaffle;
 
 import me.BaffledWaffle.validator.Validator;
 
+import java.nio.file.NoSuchFileException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,6 +60,8 @@ public class App  {
         } catch ( IllegalArgumentException e ) {
             System.out.println( e.getMessage() );
             printHelp();
+        } catch ( NoSuchFileException e ) {
+            System.out.println( e.getMessage() );
         }
     }
 

@@ -1,5 +1,7 @@
 package me.BaffledWaffle.validator;
 
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -16,12 +18,12 @@ public class Validator {
      * @param cssValidator CSS validator .jar path
      * @param reportFile Report file path (report.html by default)
      */
-    public static void validateAndGenerateReport( String mode, String dir,  String vnuValidator, String cssValidator, String reportFile ) {
+    public static void validateAndGenerateReport( String mode, String dir,  String vnuValidator, String cssValidator, String reportFile ) throws NoSuchFileException {
 
         // -- Paths --
-        Path dirPath = getAbsolutePath( dir );
-        Path vnuValidatorPath = getAbsolutePath( vnuValidator );
-        Path cssValidatorPath = getAbsolutePath( cssValidator );
+        Path dirPath = getAbsolutePathIfExists( dir );
+        Path vnuValidatorPath = getAbsolutePathIfExists( vnuValidator );
+        Path cssValidatorPath = getAbsolutePathIfExists( cssValidator );
         if( reportFile == null || reportFile.isEmpty() )
             reportFile = "report.html";
         Path reportFilePath = getAbsolutePath( reportFile );
@@ -29,15 +31,26 @@ public class Validator {
         System.out.println( dirPath );
 
     }
+    private static Path getAbsolutePathIfExists( String pathStr ) throws NoSuchFileException {
+        Path path = getAbsolutePath( pathStr );
+
+        if( !Files.exists( path ) )
+            throw new NoSuchFileException( "Sellist faili/kausta ei eksisteeri! - " + path );
+
+        return path;
+    }
+
 
     /**
      * The method finds file/dir absolute path
      * @return absolute path
      */
     private static Path getAbsolutePath( String pathStr ) {
+
         Path path = Paths.get( pathStr );
         if( !path.isAbsolute() )
-            return path.toAbsolutePath().normalize();
+            path = path.toAbsolutePath().normalize();
+
         return path;
     }
 
