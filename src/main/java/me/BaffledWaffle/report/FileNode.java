@@ -7,7 +7,7 @@ public class FileNode {
 
     private final String name;
     private final boolean isDirectory;
-    private final List<FileNode> children = new ArrayList();
+    private final List<FileNode> children = new ArrayList<>();
 
     public FileNode( String name, boolean isDirectory ) {
         this.name = name;
