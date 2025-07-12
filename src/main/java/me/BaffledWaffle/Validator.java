@@ -4,13 +4,16 @@ import me.BaffledWaffle.report.FileNode;
 import me.BaffledWaffle.report.FileTreeBuilder;
 import me.BaffledWaffle.report.Report;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Validator class. Contains static methods for validation and generating report file
@@ -25,7 +28,7 @@ public class Validator {
      * @param cssValidator CSS validator .jar path
      * @param reportFile Report file path (report.html by default)
      */
-    public static void validateAndGenerateReport( String mode, String dir,  String vnuValidator, String cssValidator, String reportFile ) throws IOException {
+    public static void validateAndGenerateReport( String mode, String dir,  String vnuValidator, String cssValidator, String reportFile ) throws IOException, InterruptedException {
 
         // -- Paths --
         Path dirPath = getAbsolutePathIfExists( dir );
@@ -64,7 +67,49 @@ public class Validator {
      * @param cssPath CSS validator jar file path
      * @return all projects' reports
      */
-    private static List<Report> getReports( Path dirPath, Path vnuPath, Path cssPath ) throws IOException {
+    private static List<Report> getReports( Path dirPath, Path vnuPath, Path cssPath ) throws IOException, InterruptedException {
+
+        List<Path> htmlFiles = new ArrayList<>();
+
+        // Process every directory
+        try (DirectoryStream<Path> projectDirectories = Files.newDirectoryStream( dirPath ) ) {
+            for( Path projectDir : projectDirectories ) {
+                FileNode projectFileTree = FileTreeBuilder.buildTree( projectDir );
+                List<Path> htmlFilesPaths = projectFileTree.getHtmlAbsolutePaths();
+                htmlFiles.addAll( htmlFilesPaths );
+            }
+        }
+
+        // Validating with Nu validator
+        List<String> base = Arrays.asList( "java", "-jar", vnuPath.toString(), "--format", "json" );
+        List<String> command = new ArrayList<>( base );
+
+        for( Path htmlFile : htmlFiles ) {
+            command.add( htmlFile.toString() );
+        }
+
+
+        ProcessBuilder processBuilder = new ProcessBuilder( command );
+        processBuilder.redirectErrorStream(true);
+        Process proc = processBuilder.start();
+
+        String json = "";
+
+        // Reading responce
+        try (BufferedReader reader = new BufferedReader( new InputStreamReader( proc.getInputStream(), StandardCharsets.UTF_8 ))) {
+            String output = reader.lines().collect(Collectors.joining("\n"));
+            int exitCode = proc.waitFor();
+            if( exitCode == 0 || exitCode == 1 )
+                json = output;
+            else
+                System.out.println( "Process finished with error: " + exitCode );
+        }
+
+        if( !json.isEmpty() ) {
+            System.out.println( json );
+        } else {
+            System.out.println( "Viga JSON lugemisel." );
+        }
 
         return null;
     }

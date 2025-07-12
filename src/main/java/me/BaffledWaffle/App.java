@@ -63,6 +63,8 @@ public class App  {
             System.out.println( e.getMessage() );
         } catch ( IOException e) {
             System.out.println( "IOException: " + e.getMessage() );
+        } catch ( InterruptedException e ) {
+            System.out.println( "InterruptedException: " + e.getMessage() );
         }
     }
 
