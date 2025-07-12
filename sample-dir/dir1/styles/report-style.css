@@ -1,0 +1,152 @@
+body {
+    font-family: monospace;
+    background: white;
+    color: black;
+    margin: 2em auto;
+    max-width: 800px;
+    line-height: 1.6;
+}
+
+/* -- HEADERS, P -- */
+
+h1, h2, h3 {
+    border-bottom: 1px solid #ccc;
+}
+h1 { font-size: 32px; }
+h2 { font-size: 24px; }
+h3 { font-size: 18px;}
+
+
+p {
+    font-size: 16px;
+}
+
+/* -- PUU STIILID -- */
+
+ul.tree,
+ul.tree ul {
+    list-style: none;
+    padding-left: 1em;
+    position: relative;
+    font-family: monospace;
+}
+
+ul.tree ul::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-left: 1px solid #ccc;
+    height: 100%;
+}
+
+ul.tree li {
+    margin: 0.5em 0;
+    position: relative;
+    padding-left: 1.4em;
+}
+
+ul.tree li::before {
+    content: '';
+    position: absolute;
+    top: 0.9em;
+    left: 0;
+    border-top: 1px solid #ccc;
+    width: 1em;
+}
+
+/* -- ALERT -- */
+
+.alert {
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+    border-radius: 0.375rem;
+    font-family: sans-serif;
+    font-size: 14px;
+
+}
+
+.alert-ok {
+    color: #0f5132;
+    background-color: #d1e7dd;
+    border-color: #badbcc;
+    
+}
+
+/* -- REPORT BLOCKS -- */
+.report-block {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin: 1.5em 0;
+  font-family: sans-serif;
+  overflow: hidden;
+  background: white;
+}
+
+.report-header {
+  padding: 0.75em 1em;
+  font-weight: bold;
+  color: #000;
+}
+
+.report-body {
+  padding: 1em;
+  background-color: #fff;
+  color: #333;
+}
+
+.report-block.error .report-header {
+  background-color: #f8d7da;
+  border-bottom: 1px solid #f5c2c7;
+  color: #842029;
+}
+
+.report-block.warning .report-header {
+  background-color: #fff3cd;
+  border-bottom: 1px solid #ffecb5;
+  color: #664d03;
+}
+
+
+.report-body ul {
+  margin: 0;
+  padding-left: 1.2em;
+}
+
+.report-body li {
+  margin-bottom: 0.5em;
+}
+
+
+
+/* EI TEA MIS SEE ON */
+
+.tag {
+    color: #0077cc;
+}
+
+.attribute {
+    color: #aa5500;
+}
+
+
+.ok {
+    color: green;
+}
+
+.warn {
+    color: orange;
+}
+
+.fail {
+    color: red;
+}
+
+.error-list {
+    padding-left: 1.5em;
+}
+
+.error-list li {
+    margin-bottom: 0.4em;
+}

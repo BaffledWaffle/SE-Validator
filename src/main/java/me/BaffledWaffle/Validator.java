@@ -2,12 +2,15 @@ package me.BaffledWaffle;
 
 import me.BaffledWaffle.report.FileNode;
 import me.BaffledWaffle.report.FileTreeBuilder;
+import me.BaffledWaffle.report.Report;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Validator class. Contains static methods for validation and generating report file
@@ -32,6 +35,38 @@ public class Validator {
             reportFile = "report.html";
         Path reportFilePath = getAbsolutePath( reportFile );
 
+        List<Report> reports = new ArrayList<>();
+
+        if( mode.equals( "o" ) ) {
+            Report report = getReport( dirPath, vnuValidatorPath, cssValidatorPath );
+            reports.add( report );
+        } else if ( mode.equals( "s" ) ) {
+            reports = getReports( dirPath, vnuValidatorPath, cssValidatorPath );
+        }
+
+    }
+
+    /**
+     * The method returns one report by project directory
+     * @param dirPath project directory
+     * @param vnuPath Nu validator jar file path
+     * @param cssPath CSS validator jar file path
+     * @return single project's report
+     */
+    private static Report getReport( Path dirPath, Path vnuPath, Path cssPath) {
+        return null;
+    }
+
+    /**
+     * The method returns reports by directory with projects
+     * @param dirPath project directory
+     * @param vnuPath Nu validator jar file path
+     * @param cssPath CSS validator jar file path
+     * @return all projects' reports
+     */
+    private static List<Report> getReports( Path dirPath, Path vnuPath, Path cssPath ) throws IOException {
+
+        return null;
     }
 
     /**
@@ -42,7 +77,7 @@ public class Validator {
         Path path = getAbsolutePath( pathStr );
 
         if( !Files.exists( path ) )
-            throw new NoSuchFileException( "Sellist faili/kausta ei eksisteeri! - " + path );
+            throw new NoSuchFileException( "Sellist faili/kausta ei eksisteeri! - " + path);
 
         return path;
     }
