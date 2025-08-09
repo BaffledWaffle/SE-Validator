@@ -18,9 +18,79 @@ public class App
 
     public static void main( String[] args )
     {
-        printHelp();
+
+        // Args processing
+        for( int i = 0; i < args.length; i++ ) {
+            String arg = args[i];
+
+            // help
+            if( arg.equals( "--help" ) || arg.equals( "-h" ) || arg.equals( "help" ) ) {
+                printHelp();
+                return;
+            }
+
+            // Options
+            // 1. arg is not on last position
+            // 2. argument is flag - starts with hyphen
+            // 3. next argument is not a flag
+            if( i+1 < args.length && arg.startsWith( "-" ) && !args[ i+1 ].startsWith( "-" ) ) {
+
+                String value = args[ i+1 ]; // flag value
+                setValue( arg, value ); // rewrite default value
+                i++; // go to the next args
+
+            } else {
+                System.out.println( "Lipp " + arg + " vajab väärtust." );
+                System.out.println();
+                printHelp();
+            }
+
+        }
+
+        // Normalize all values
+        normalizeValues();
+
     }
 
+    /**
+     * Normalizes all default/user values: brings to normalized absolute path
+     */
+    private static void normalizeValues() {
+        input = input.toAbsolutePath().normalize();
+        output = output.toAbsolutePath().normalize();
+        vnuValidator = vnuValidator.toAbsolutePath().normalize();
+        cssValidator = cssValidator.toAbsolutePath().normalize();
+    }
+
+    /**
+     * Sets static methods values depending on flag value.
+     * @param flag - flag
+     * @param value - given flag value
+     */
+    private static void setValue( String flag, String value ) {
+        switch (flag) {
+            case "-i":
+                input = Paths.get(value);
+                break;
+            case "-o":
+                output = Paths.get(value);
+                break;
+            case "-vnu":
+                vnuValidator = Paths.get(value);
+                break;
+            case "-css":
+                cssValidator = Paths.get(value);
+                break;
+            default:
+                System.out.println("Tundmatu lipp: " + flag);
+                printHelp();
+                break;
+        }
+    }
+
+    /**
+     * Prints help info
+     */
     private static void printHelp() {
         System.out.println( "KASUTAMINE" );
         System.out.println( "   java -jar SE-Validator.jar [OPTS]" );
