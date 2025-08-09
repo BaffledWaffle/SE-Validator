@@ -26,7 +26,7 @@ public class App
             // help
             if( arg.equals( "--help" ) || arg.equals( "-h" ) || arg.equals( "help" ) ) {
                 printHelp();
-                return;
+                System.exit(1);
             }
 
             // Options
@@ -43,6 +43,7 @@ public class App
                 System.out.println( "Lipp " + arg + " vajab väärtust." );
                 System.out.println();
                 printHelp();
+                System.exit(1);
             }
 
         }
@@ -89,7 +90,7 @@ public class App
     }
 
     /**
-     * Prints help info
+     * Prints help info and stops program
      */
     private static void printHelp() {
         System.out.println( "KASUTAMINE" );
