@@ -96,10 +96,10 @@ public class App
         System.out.println( "   java -jar SE-Validator.jar [OPTS]" );
         System.out.println();
         System.out.println( "OPTSIOONID" );
-        System.out.println( "   -i         [i]nput - määrab kataloogi valideeritavate projektidega (vaikimisi: " + input + ")" );
-        System.out.println( "   -o         [o]utput - määrab aruande faili nimi (vaikimisi: " + output + ")" );
-        System.out.println( "   -vnu       [vnu].jar - määrab Nu validaatori JAR faili (vaikimisi : " + vnuValidator + ")" );
-        System.out.println( "   -css       [css]-validator.jar - määrab CSS validaatori faili (vaikimisi: " + cssValidator + ")" );
+        System.out.println( "   -i         [i]nput - määrab kataloogi valideeritavate projektidega (vaikimisi: ./projects)" );
+        System.out.println( "   -o         [o]utput - määrab aruande faili nimi (vaikimisi: ./report.html)" );
+        System.out.println( "   -vnu       [vnu].jar - määrab Nu validaatori JAR faili (vaikimisi: ./vnu.jar)" );
+        System.out.println( "   -css       [css]-validator.jar - määrab CSS validaatori faili (vaikimisi: ./css-validator.jar)" );
         System.out.println();
         System.out.println( "P.S." );
         System.out.println( "   Täpsem teave kasutamise ja valideerijate allalaadimise kohta on leitav aadressil: https://github.com/BaffledWaffle/SE-Validator"  );
