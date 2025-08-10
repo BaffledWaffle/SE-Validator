@@ -9,13 +9,15 @@ import java.util.List;
 public class FileNode {
 
     private final Path path; // file absolute path
+    private final Path root; // root for calculating relative path in project
     private final boolean isDirectory;
     private List<FileNode> children;
 
     private FileReport report;
 
-    public FileNode( Path path, boolean isDirectory ) {
+    public FileNode( Path path, Path root, boolean isDirectory ) {
         this.path = path;
+        this.root = root;
         this.isDirectory = isDirectory;
 
         if( isDirectory )
@@ -48,6 +50,24 @@ public class FileNode {
 
     public String getName() {
         return path.getFileName().toString();
+    }
+
+    public String getRelativeName() {
+        return root.relativize( path ).toString().replace( "\\", "/" );
+    }
+
+    public String toString() {
+
+        if( !isDirectory ) {
+            return getRelativeName();
+        }
+
+        StringBuilder r = new StringBuilder();
+        r.append(getRelativeName()).append("\n");
+        for( FileNode child : children )
+            r.append( child.toString() ).append( "\n" );
+
+        return r.toString();
     }
 
 }
