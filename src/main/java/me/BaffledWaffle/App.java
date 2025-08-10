@@ -16,6 +16,12 @@ public class App
     private static Path cssValidator = Paths.get( "./css-validator.jar" );
 
 
+    /**
+     * App enter point.
+     * Main method, processes inputted by user arguments.
+     * Brings all paths to absolute and normalizes.
+     * @param args inputted by user arguments
+     */
     public static void main( String[] args )
     {
 
@@ -85,12 +91,13 @@ public class App
             default:
                 System.out.println("Tundmatu lipp: " + flag);
                 printHelp();
+                System.exit(1);
                 break;
         }
     }
 
     /**
-     * Prints help info and stops program
+     * Prints help info
      */
     private static void printHelp() {
         System.out.println( "KASUTAMINE" );

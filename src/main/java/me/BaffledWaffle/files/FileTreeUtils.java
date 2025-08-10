@@ -8,8 +8,22 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+/**
+ *
+ * <p>Static class with utils to work with {@link FileNode} class and objects.</p>
+ * <p>This class helps еto work with {@link FileNode} class and objects.</p>
+ *
+ * @see FileNode
+ * @author Jevgeni Golosov [BaffledWaffle]
+ * @since 1.0
+ */
 public class FileTreeUtils {
 
+    /**
+     * The method builds a file tree relative to root path.
+     * @param root file tree root path.
+     * @return {@link FileNode} object with <b>root</b> as file tree root.
+     */
     public static FileNode buildTree( Path root ) {
 
         if ( !Files.isDirectory( root ) )
@@ -18,6 +32,12 @@ public class FileTreeUtils {
         return buildTreeRec( root.toAbsolutePath().normalize(), root.toAbsolutePath().normalize());
     }
 
+    /**
+     * The helper method for recursively building a file tree.
+     * @param curr currently processing file path.
+     * @param root file tree root path.
+     * @return {@link FileNode} object with root as file tree root.
+     */
     private static FileNode buildTreeRec( Path curr, Path root ) {
 
         FileNode node = new FileNode( curr, root, Files.isDirectory(curr) ); // create current directory node
@@ -32,6 +52,7 @@ public class FileTreeUtils {
 
 
             try( DirectoryStream<Path> stream = Files.newDirectoryStream( curr ) ) { // read all
+                // Separate directories and files
                 for ( Path entry : stream ) {
                     if( Files.isDirectory( entry ) )
                         directories.add( entry );
@@ -39,21 +60,21 @@ public class FileTreeUtils {
                         files.add( entry );
                 }
 
+                // Sorting by name
                 Comparator<Path> byName = Comparator.comparing( p -> p.getFileName().toString().toLowerCase() );
-
                 directories.sort( byName );
                 files.sort( byName );
 
                 // Create all child nodes for dirs
                 for( Path directory : directories ) {
-                    FileNode childNode = buildTreeRec( directory, root );
-                    node.addChild( childNode );
+                    FileNode childNode = buildTreeRec( directory, root ); // check for all children
+                    node.addChild( childNode ); // add FileNode with his children to parent
                 }
 
                 // Create all files' child nodes
                 for( Path file : files ) {
-                    FileNode childNode = new FileNode( file, root, false );
-                    node.addChild( childNode );
+                    FileNode childNode = new FileNode( file, root, false ); // create file's FileNode
+                    node.addChild( childNode ); // and add it to parent
                 }
 
             } catch (IOException e) {
