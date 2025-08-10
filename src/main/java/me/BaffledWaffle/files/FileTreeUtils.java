@@ -87,4 +87,26 @@ public class FileTreeUtils {
 
     }
 
+    /**
+     * The method returns the list with all {@link FileNode}s, which extensions (end) is equal to ext
+     * @param root file tree root
+     * @param ext extensions
+     * @return list of file nodes ({@link FileNode}) with extension ext
+     */
+    public static List<FileNode> listFilesByExtension( FileNode root, String ext ) {
+
+        List<FileNode> files = new ArrayList<>();
+
+        for( FileNode child : root.getChildren() ) {
+            if( child.isDirectory() )
+                files.addAll( listFilesByExtension( child, ext ) );
+            else
+                if( child.getName().endsWith( ext ) )
+                    files.add( child );
+        }
+
+        return files;
+
+    }
+
 }
