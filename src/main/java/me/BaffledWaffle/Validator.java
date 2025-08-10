@@ -3,22 +3,35 @@ package me.BaffledWaffle;
 import me.BaffledWaffle.files.FileNode;
 import me.BaffledWaffle.files.FileTreeUtils;
 import me.BaffledWaffle.reports.ProjectReport;
+import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Validator {
 
-    public static List<ProjectReport> getProjectReports(Path projectsDirectory ) {
+    public static List<ProjectReport> getProjectReports( Path projectsDirectory, Path vnuValidator, Path cssValidator ) throws IOException, InterruptedException {
         List<ProjectReport> projectReports = new ArrayList<>();
 
         // Create all projects file trees
-        List<FileNode> fileTrees = new ArrayList<>();
+        List<FileNode> fileTrees = getFileTrees( projectsDirectory );
+        List<FileNode> htmlFiles = new ArrayList<>();
+
+        // Find and save all html files
+        for( FileNode fileTree : fileTrees )
+            htmlFiles.addAll( FileTreeUtils.listFilesByExtension( fileTree, ".html" ) );
+
+        // Get JSON object from Nu validator
+        JSONObject jo = getNuValidatorJson( htmlFiles, vnuValidator );
 
         return null;
 
@@ -56,6 +69,62 @@ public class Validator {
         }
 
         return fileTrees;
+    }
+
+    /**
+     * The method uses vnu.jar to validate files. Returns JSON object of Nu validator response
+     * @param filesToValidate list of files that needs to be checked
+     * @param vnu - Nu validator jar file (vnu.jar)
+     * @return JSON object of Nu validator response
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    private static JSONObject getNuValidatorJson( List<FileNode> filesToValidate, Path vnu ) throws IOException, InterruptedException {
+
+        System.out.println( "Kontrollime failid Nu validaatoriga (vnu.jar)..." );
+
+        // Command's base
+        Process process = getProcess(filesToValidate, vnu);
+
+        // Read the response
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
+
+            String output = reader.lines().collect(Collectors.joining("\n"));
+
+            // Wait for process end and return JSON
+            int exitCode = process.waitFor();
+            if( !output.isEmpty() )
+                System.out.println( "Saime JSON!" );
+            System.out.println( "Protsess lõppes koodiga: " + exitCode );
+            return new JSONObject( output );
+        }
+    }
+
+    /**
+     * The helper method builds, starts and returns Process (vnu.jar)
+     * @param filesToValidate list of files that needs to be checked
+     * @param vnu Nu validator jar file (vnu.jar)
+     * @return Process of vnu.jar
+     * @throws IOException
+     */
+    private static Process getProcess(List<FileNode> filesToValidate, Path vnu) throws IOException {
+        List<String> command = new ArrayList<>();
+        command.add( "java" );
+        command.add( "-jar" );
+        command.add( vnu.toString() );
+        command.add( "--format" );
+        command.add( "json" );
+
+        // Add all controllable files
+        for( FileNode f : filesToValidate) {
+            command.add( f.getPath().toString() );
+        }
+
+        // Start process
+        ProcessBuilder pb = new ProcessBuilder(command);
+        pb.redirectErrorStream(true);
+        return pb.start();
     }
 
 }
