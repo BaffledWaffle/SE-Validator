@@ -5,7 +5,8 @@ public class Message {
     public enum MessageType {
         ERROR,
         WARNING,
-        INFO
+        FATAL_ERROR,
+        NON_DOCUMENT_ERROR,
     }
 
     private final MessageType type;
@@ -17,12 +18,21 @@ public class Message {
 
     private String header; // "message" in JSON
     private String content; // "extract" in JSON
+    private String comment; // comment for non-document-error
 
     public Message( MessageType type ) {
         this.type = type;
     }
 
     // == GETTERS, SETTERS ==
+
+    public void setNonDocumentErrorComment( String comment ) {
+        this.comment = comment;
+    }
+
+    public String getNonDocumentErrorComment() {
+        return comment;
+    }
 
     public void setLocationRange( LocationRange locationRange ) {
         this.locationRange = locationRange;
