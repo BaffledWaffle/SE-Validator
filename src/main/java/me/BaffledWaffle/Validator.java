@@ -2,24 +2,29 @@ package me.BaffledWaffle;
 
 import me.BaffledWaffle.files.FileNode;
 import me.BaffledWaffle.files.FileTreeUtils;
+import me.BaffledWaffle.reports.FileReport;
+import me.BaffledWaffle.reports.LocationRange;
+import me.BaffledWaffle.reports.Message;
 import me.BaffledWaffle.reports.ProjectReport;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Validator {
 
-    public static List<ProjectReport> getProjectReports( Path projectsDirectory, Path vnuValidator, Path cssValidator ) throws IOException, InterruptedException {
+    public static List<FileReport> getProjectReports( Path projectsDirectory, Path vnuValidator, Path cssValidator ) throws IOException, InterruptedException, URISyntaxException {
         List<ProjectReport> projectReports = new ArrayList<>();
 
         // Create all projects file trees
@@ -31,10 +36,115 @@ public class Validator {
             htmlFiles.addAll( FileTreeUtils.listFilesByExtension( fileTree, ".html" ) );
 
         // Get JSON object from Nu validator
-        JSONObject jo = getNuValidatorJson( htmlFiles, vnuValidator );
+        JSONObject reportsJson = getNuValidatorJson( htmlFiles, vnuValidator );
+        List<FileReport> fileReports = getFileReportsFromJson( reportsJson );
 
-        return null;
+        return fileReports;
 
+    }
+
+    private static List<FileReport> getFileReportsFromJson( JSONObject json ) throws URISyntaxException {
+
+        Map<Path, FileReport> indexPathFileReport = new HashMap<>();
+
+        JSONArray messagesJson = json.getJSONArray( "messages" );
+        int numberOfMessages = messagesJson.length();
+
+        // Check if we don't have messages (all files is correct)
+        if ( numberOfMessages == 0 )
+            return null;
+
+        // Parse JSON messages
+        for( int i = 0; i < numberOfMessages; i++ ) {
+            // Get JSON message
+            JSONObject messageJson = messagesJson.getJSONObject( i );
+            Message message;
+
+            // 1. Get file
+            String url = messageJson.optString( "url", null );
+
+            if( url == null ) {
+                System.out.println( "Url is null. Message: " + messageJson );
+                continue;
+            }
+
+            Path filePath = Paths.get( new URI( url ) ).toAbsolutePath().normalize();
+
+            // Create new index key and file report if it doesn't exist
+            if( !indexPathFileReport.containsKey( filePath ) )
+                indexPathFileReport.put( filePath, new FileReport( filePath ) );
+
+            // 2. Check type/subtype
+            String type = messageJson.optString( "type", null );
+
+            if( type == null ) {
+                System.out.println( "Type is null. Message: " + messageJson );
+                continue;
+            }
+
+            String subType = messageJson.optString( "subType", null );
+
+            if ( type.equals( "info" ) && subType.equals( "warning" ) )
+                message = new Message( Message.MessageType.WARNING );
+            else if ( type.equals( "error" ) && subType == null )
+                message = new Message( Message.MessageType.ERROR );
+            else if ( type.equals( "error" ) && subType.equals( "fatal" ) )
+                message = new Message( Message.MessageType.FATAL_ERROR );
+            else if ( type.equals( "non-document-error" ) && subType != null ) {
+                message = new Message( Message.MessageType.NON_DOCUMENT_ERROR );
+                message.setNonDocumentErrorComment( subType );
+                System.out.println( "Fail: " + filePath );
+                System.out.println( "NonDocumentError: " + subType );
+                System.out.println();
+            } else {
+                System.out.println( "Tundmatu tüüp/alamtüüp: " + type + ", " + subType );
+                continue;
+            }
+
+            // 3. Get location range
+            String firstLineStr = messageJson.optString( "firstLine", null );
+            Integer firstLine = ( firstLineStr == null ) ? null : Integer.valueOf( firstLineStr );
+
+            String lastLineStr = messageJson.optString( "lastLine", null );
+            Integer lastLine = ( lastLineStr == null ) ? null : Integer.valueOf( lastLineStr );
+
+            String firstColumnStr = messageJson.optString( "firstColumn", null );
+            Integer firstColumn = ( firstColumnStr == null ) ? null : Integer.valueOf( firstColumnStr );
+
+            String lastColumnStr = messageJson.optString( "lastColumn", null );
+            Integer lastColumn = ( lastColumnStr == null ) ? null : Integer.valueOf( lastColumnStr );
+
+            if( lastLine == null || lastColumn == null ) {
+                System.out.println( "Last line or last column is null. Message: " + messageJson );
+            }
+
+            LocationRange locationRange = new LocationRange( firstLine, lastLine, firstColumn, lastColumn );
+
+            // 4. Get Header (message) and Content (extract)
+            String header = messageJson.optString( "message", null );
+            String content = messageJson.optString( "extract", null );
+
+            if( header == null || content == null ) {
+                System.out.println( "Header or content is null. Message: " + messagesJson );
+                continue;
+            }
+
+            // 5. Get hilite
+            int hiliteStart = messageJson.optInt( "hiliteStart", 0 );
+            int hiliteLength = messageJson.optInt( "hiliteLength", 0 );
+
+            // 6. Create message
+            message.setHeader( header );
+            message.setContent( content );
+            message.setLocationRange( locationRange );
+            message.setContentHilite( hiliteStart, hiliteLength );
+
+            // add message to file's report
+            indexPathFileReport.get( filePath ).addMessage( message );
+
+        }
+
+        return new ArrayList<>( indexPathFileReport.values() );
     }
 
     /**
@@ -84,7 +194,7 @@ public class Validator {
         System.out.println( "Kontrollime failid Nu validaatoriga (vnu.jar)..." );
 
         // Command's base
-        Process process = getProcess(filesToValidate, vnu);
+        Process process = getVnuProcess(filesToValidate, vnu);
 
         // Read the response
         try (BufferedReader reader = new BufferedReader(
@@ -108,7 +218,7 @@ public class Validator {
      * @return Process of vnu.jar
      * @throws IOException
      */
-    private static Process getProcess(List<FileNode> filesToValidate, Path vnu) throws IOException {
+    private static Process getVnuProcess(List<FileNode> filesToValidate, Path vnu) throws IOException {
         List<String> command = new ArrayList<>();
         command.add( "java" );
         command.add( "-jar" );
