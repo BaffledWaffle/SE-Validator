@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 public class Validator {
 
-    public static List<FileReport> getProjectReports( Path projectsDirectory, Path vnuValidator, Path cssValidator ) throws IOException, InterruptedException, URISyntaxException {
+    public static List<ProjectReport> getProjectReports( Path projectsDirectory, Path vnuValidator, Path cssValidator ) throws IOException, InterruptedException, URISyntaxException {
         List<ProjectReport> projectReports = new ArrayList<>();
 
         // Create all projects file trees
@@ -39,7 +39,7 @@ public class Validator {
         JSONObject reportsJson = getNuValidatorJson( htmlFiles, vnuValidator );
         List<FileReport> fileReports = getFileReportsFromJson( reportsJson );
 
-        return fileReports;
+        return projectReports;
 
     }
 
