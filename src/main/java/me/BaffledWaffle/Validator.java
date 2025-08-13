@@ -11,6 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URISyntaxException;
@@ -27,21 +28,50 @@ public class Validator {
         List<ProjectReport> projectReports = new ArrayList<>();
 
         // Create all projects file trees
-        List<FileNode> fileTrees = getFileTrees( projectsDirectory );
+        List<FileNode> projectsTrees = getFileTrees( projectsDirectory );
         List<FileNode> htmlFiles = new ArrayList<>();
 
         // Find and save all html files
-        for( FileNode fileTree : fileTrees )
+        for( FileNode fileTree : projectsTrees )
             htmlFiles.addAll( FileTreeUtils.listFilesByExtension( fileTree, ".html" ) );
 
         // Get JSON object from Nu validator
         JSONObject reportsJson = getNuValidatorJson( htmlFiles, vnuValidator );
         List<FileReport> fileReports = getFileReportsFromJson( reportsJson );
 
+        // Link projects' file trees and their file reports
+        linkFileReports( projectsTrees, fileReports );
+
         return projectReports;
 
     }
 
+    /**
+     * The method assigns {@link FileReport} objects to their corresponding {@link FileNode} files.
+     * @param projectsTrees given projects' file trees.
+     * @param fileReports given file reports as objects.
+     */
+    private static void linkFileReports( List<FileNode> projectsTrees, List<FileReport> fileReports ) {
+
+        // Create index Map Path-FileReport
+        Map<Path, FileReport> indexPathFileReport = new HashMap<>();
+        for( FileReport fileReport : fileReports ) {
+            Path filePath = fileReport.getFilePath();
+            indexPathFileReport.put( filePath, fileReport );
+        }
+
+        // List all trees objects and link them to their file reports.
+        for( FileNode tree : projectsTrees ) {
+            FileTreeUtils.linkTreeNodesToFileReports( tree, indexPathFileReport );
+        }
+
+    }
+
+    /**
+     * The method gets a JSON object and parses messages. Gets the file reports as objects from JSON.
+     * @param json given JSON object.
+     * @return List with parsed file report objects.
+     */
     private static List<FileReport> getFileReportsFromJson( JSONObject json ) {
 
         Map<Path, FileReport> indexPathFileReport = new HashMap<>();
@@ -51,7 +81,7 @@ public class Validator {
 
         // Check if we don't have messages (all files is correct)
         if ( numberOfMessages == 0 )
-            return null;
+            return new ArrayList<>();
 
         NuJsonParser parser = new NuJsonParser();
 

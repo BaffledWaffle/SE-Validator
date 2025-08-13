@@ -1,5 +1,7 @@
 package me.BaffledWaffle.files;
 
+import me.BaffledWaffle.reports.FileReport;
+
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -7,6 +9,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -106,6 +109,28 @@ public class FileTreeUtils {
         }
 
         return files;
+
+    }
+
+    /**
+     * The method iterates over all elements of the given tree and links given file reports to the nodes.
+     * @param tree given tree.
+     * @param indexPathFileReport index Map Path-FileReport.
+     */
+    public static void linkTreeNodesToFileReports(FileNode tree, Map<Path, FileReport> indexPathFileReport ) {
+
+        for( FileNode child : tree.getChildren() ) {
+            if( !child.isDirectory() ) {
+                // Is file. Get file tree node's path, find it from index Map and set (link) it to file node.
+                Path nodePath = child.getPath();
+                FileReport fileReport = indexPathFileReport.get( nodePath );
+                child.setReport( fileReport );
+            }
+            else {
+                // Is directory, iterate all files/directories inside.
+                linkTreeNodesToFileReports( child, indexPathFileReport );
+            }
+        }
 
     }
 
