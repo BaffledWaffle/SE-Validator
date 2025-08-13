@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 public class Validator {
 
     public static List<ProjectReport> getProjectReports( Path projectsDirectory, Path vnuValidator, Path cssValidator ) throws IOException, InterruptedException, URISyntaxException {
-        List<ProjectReport> projectReports = new ArrayList<>();
 
         // Create all projects file trees
         List<FileNode> projectsTrees = getFileTrees( projectsDirectory );
@@ -42,8 +41,23 @@ public class Validator {
         // Link projects' file trees and their file reports
         linkFileReports( projectsTrees, fileReports );
 
-        return projectReports;
+        // Build project reports: assign name and file tree.
 
+        return buildProjectReports( projectsTrees );
+
+    }
+
+    private static List<ProjectReport> buildProjectReports( List<FileNode> projectsTrees) {
+
+        List<ProjectReport> projectReports = new ArrayList<>();
+
+        for( FileNode tree : projectsTrees ) {
+            // Root node's name (project directory's name) is a project name
+            String name = tree.getName();
+            projectReports.add( new ProjectReport( name, tree ) );
+        }
+
+        return projectReports;
     }
 
     /**
@@ -176,6 +190,7 @@ public class Validator {
      * @throws IOException
      */
     private static Process getVnuProcess(List<FileNode> filesToValidate, Path vnu) throws IOException {
+
         List<String> command = new ArrayList<>();
         command.add( "java" );
         command.add( "-jar" );
